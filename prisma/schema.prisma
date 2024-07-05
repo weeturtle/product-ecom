@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  varients    Varient[]
+
+  @@map("product")
+}
+
+model Varient {
+  id        String   @id @default(cuid())
+  name      String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  options   Option[]
+
+  @@map("varient")
+}
+
+model Option {
+  id        String  @id @default(cuid())
+  name      String
+  varient   Varient @relation(fields: [varientId], references: [id])
+  varientId String
+
+  @@map("option")
+}
