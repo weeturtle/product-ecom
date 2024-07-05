@@ -1,0 +1,21 @@
+{
+  "name": "products",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Max London <grahamluk66@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.14.9",
+    "apollo-server": "^3.13.0",
+    "graphql": "^16.9.0",
+    "typescript": "^5.5.3"
+  },
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "dev": "yarn nodemon --watch 'src/**' --ext ts --exec 'yarn ts-node src/index.ts'"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2"
+  }
+}
