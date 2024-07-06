@@ -9,5 +9,16 @@ services:
       - postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  api_products:
+    depends_on:
+      - postgres_products
+    build: .
+    env_file: ./.env
+    ports:
+      - "4000:4000"
+
+    stdin_open: true
+    tty: true
 volumes:
   postgres:
