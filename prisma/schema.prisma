@@ -8,29 +8,50 @@ generator client {
 }
 
 model Product {
-  id          String    @id @default(cuid())
+  id String @id @default(cuid())
+
   name        String
   description String?
   varients    Varient[]
+  skus        SKU[]
 
   @@map("product")
 }
 
 model Varient {
-  id        String   @id @default(cuid())
-  name      String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
-  options   Option[]
+  id String @id @default(cuid())
+
+  name String
+
+  product    Product      @relation(fields: [productId], references: [id])
+  productId  String
+  skuOptions SKU_Option[]
 
   @@map("varient")
 }
 
-model Option {
-  id        String  @id @default(cuid())
-  name      String
-  varient   Varient @relation(fields: [varientId], references: [id])
+model SKU {
+  id String @id @default(cuid())
+
+  price  Float
+  images String[]
+  stock  Int
+
+  options SKU_Option[]
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model SKU_Option {
+  skuId     String
   varientId String
 
-  @@map("option")
+  value String
+
+  sku     SKU     @relation(fields: [skuId], references: [id])
+  Varient Varient @relation(fields: [varientId], references: [id])
+
+  @@id([skuId, varientId])
+  @@map("sku_option")
 }
