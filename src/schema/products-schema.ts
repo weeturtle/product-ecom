@@ -55,8 +55,13 @@ export const typeDefs = gql`
     value: String!
   }
 
+  input OptionVarientInputName {
+    varient_name: String!
+    value: String!
+  }
+
   input OptionDetailsInput {
-    options: [OptionVarientInput!]!
+    options: [OptionVarientInputName!]!
     price: Float!
     stock: Int!
     images: [String!]!
