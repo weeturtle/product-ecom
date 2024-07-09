@@ -1,21 +1,24 @@
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "@apollo/server";
+import { buildSubgraphSchema } from "@apollo/subgraph";
+import { startStandaloneServer } from "@apollo/server/standalone";
 import { typeDefs } from "./schema/products-schema";
 import resolvers from "./resolvers";
-import prisma from "./database";
-
-const PORT = process.env.PORT || 4000;
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema: buildSubgraphSchema({
+    typeDefs,
+    resolvers,
+  }),
 });
 
 const main = async () => {
-  console.table(await prisma.product.findMany());
+  const { url } = await startStandaloneServer(server, {
+    listen: {
+      port: 4001,
+    },
+  });
+
+  console.log(`🚀 Apollo ready at ${url}`);
 };
 
 main();
-
-server.listen(PORT).then(({ url }) => {
-  console.log(`Server is running on ${url}`);
-});

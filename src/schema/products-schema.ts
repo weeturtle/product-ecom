@@ -1,4 +1,4 @@
-import { gql } from "apollo-server";
+import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
   type Product {
@@ -49,7 +49,6 @@ export const typeDefs = gql`
     name: String!
     description: String
     defaultSkuId: ID
-    options: [OptionVarientPair]!
     images: [String]!
     price: Float!
     stock: Int!
