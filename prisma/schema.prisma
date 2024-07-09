@@ -15,6 +15,9 @@ model Product {
   varients    Varient[]
   skus        SKU[]
 
+  defaultSku   SKU?    @relation(name: "defaultSku", fields: [defaultSkuId], references: [id])
+  defaultSkuId String? @unique
+
   @@map("product")
 }
 
@@ -41,6 +44,8 @@ model SKU {
 
   product   Product @relation(fields: [productId], references: [id])
   productId String
+
+  defaultSku Product? @relation(name: "defaultSku")
 }
 
 model SKU_Option {

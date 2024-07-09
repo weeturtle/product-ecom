@@ -5,7 +5,18 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     description: String
-    varients: [Varient!]!
+    defaultSkuId: ID
+
+    varients: [Varient]!
+  }
+
+  type ProductWithOptions {
+    id: ID!
+    name: String!
+    description: String
+    defaultSkuId: ID
+
+    varients: [VarientOptions]!
   }
 
   type Varient {
@@ -13,68 +24,60 @@ export const typeDefs = gql`
     name: String!
   }
 
-  type VarientDetails {
-    varient_name: String!
-    value: String!
-  }
-
   type VarientOptions {
-    varient_id: ID!
-    varient_name: String!
+    varient: Varient!
     options: [String!]!
   }
 
-  type OptionDetails {
-    options: [VarientDetails!]!
-    price: Float!
-    stock: Int!
-    images: [String!]!
-  }
-
-  input VarientInput {
-    name: String!
-  }
-
-  input OptionInput {
-    name: String!
-  }
-
-  type FullProduct {
-    id: ID!
-    name: String!
-    description: String
-    varients: [Varient!]!
-    options: [String]
-    price: Float!
-    stock: Int!
-    images: [String!]!
-  }
-
-  input OptionVarientInput {
-    varient_id: String!
+  type OptionVarientPair {
+    varient: Varient!
     value: String!
   }
 
-  input OptionVarientInputName {
+  type SKU {
+    id: ID!
+    product: Product!
+    price: Float!
+    stock: Int!
+    images: [String!]!
+
+    options: [OptionVarientPair]!
+  }
+
+  type DisplayProduct {
+    id: ID!
+    name: String!
+    description: String
+    defaultSkuId: ID
+    options: [OptionVarientPair]!
+    images: [String]!
+    price: Float!
+    stock: Int!
+  }
+
+  input OptionVarientIDInput {
+    varient_id: ID!
+    value: String!
+  }
+
+  input OptionVarientNameInput {
     varient_name: String!
     value: String!
   }
 
-  input OptionDetailsInput {
-    options: [OptionVarientInputName!]!
+  input DetailedOptionInput {
+    options: [OptionVarientNameInput]!
     price: Float!
     stock: Int!
-    images: [String!]!
+    images: [String]!
+    isDefault: Boolean
   }
 
   type Query {
-    products: [Product!]!
-    product(id: ID!): Product
-    productOptions(productID: ID!): [VarientOptions!]!
-    productByOptions(
-      productID: ID!
-      options: [OptionVarientInput!]!
-    ): FullProduct
+    products: [Product]!
+    product(id: ID!): ProductWithOptions
+    productByOptions(productID: ID!, options: [OptionVarientIDInput]!): SKU
+    displayProducts: [DisplayProduct]!
   }
 
   type Mutation {
@@ -82,7 +85,7 @@ export const typeDefs = gql`
       name: String!
       description: String
       varients: [String]!
-      options: [OptionDetailsInput]!
+      options: [DetailedOptionInput]!
     ): Product!
   }
 `;

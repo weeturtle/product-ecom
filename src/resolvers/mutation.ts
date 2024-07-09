@@ -7,12 +7,13 @@ interface IOptionDetail {
 
 interface IOptions {
   options: [IOptionDetail];
+  isDefault: boolean;
   price: number;
   stock: number;
   images: [string];
 }
 
-interface IArgs {
+interface ICreateProductArgs {
   name: string;
   description: string;
   varients: [string];
@@ -21,25 +22,48 @@ interface IArgs {
 
 const Mutation = {
   createProduct: async (_: any, args: any) => {
-    const { name, description, varients, options } = args as IArgs;
+    const { name, description, varients, options } = args as ICreateProductArgs;
 
     if (!varients.length) {
-      return prisma.product.create({
+      // First create a product with no SKU,
+      // then add SKU to it
+      const newProduct = await prisma.product.create({
         data: {
           name,
           description,
-          skus: {
-            create: {
-              price: options[0].price,
-              stock: options[0].stock,
-              images: options[0].images,
-              options: {},
+        },
+      });
+
+      await prisma.sKU.create({
+        data: {
+          price: options[0].price,
+          stock: options[0].stock,
+          images: options[0].images,
+          product: {
+            connect: {
+              id: newProduct.id,
+            },
+          },
+          defaultSku: {
+            connect: {
+              id: newProduct.id,
             },
           },
         },
       });
+
+      // Return the product with the SKU
+      return prisma.product.findUnique({
+        where: {
+          id: newProduct.id,
+        },
+        include: {
+          varients: true,
+        },
+      });
     }
 
+    // If at least one varient is present
     const product = await prisma.product.create({
       data: {
         name,
@@ -71,6 +95,15 @@ const Mutation = {
               id: product.id,
             },
           },
+          // Only connect the default SKU to the product
+          // if the option is the default
+          defaultSku: option.isDefault
+            ? {
+                connect: {
+                  id: product.id,
+                },
+              }
+            : undefined,
           options: {
             create: option.options.map((optionDetail) => ({
               value: optionDetail.value,

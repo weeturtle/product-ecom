@@ -7,47 +7,53 @@ interface IOptionDetail {
 
 const Query = {
   products: async () => {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
       include: {
-        varients: {
-          include: {
-            skuOptions: {
-              select: {
-                value: true,
-              },
-            },
-          },
-        },
+        varients: true,
       },
     });
+
+    return products;
   },
   product: async (_: any, args: any) => {
     const { id } = args;
 
     // As options are within the SKU_Option table, we need to fetch the product and its varients
     // and then include the varients' options
-    const products = await prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: {
         id,
       },
       include: {
         varients: {
           include: {
-            skuOptions: {
-              select: {
-                value: true,
-              },
-            },
-          },
-          select: {
-            id: true,
-            name: true,
+            skuOptions: true,
           },
         },
       },
     });
 
-    return products;
+    if (!product) return null;
+
+    // For each varient, remove the duplicates of the skuOptions
+    // and return the varient with the options
+
+    const varients = product.varients.map((varient) => {
+      const options = varient.skuOptions.map((option) => option.value);
+      const uniqueOptions = [...new Set(options)];
+      return {
+        varient: {
+          id: varient.id,
+          name: varient.name,
+        },
+        options: uniqueOptions,
+      };
+    });
+
+    return {
+      ...product,
+      varients,
+    };
   },
   productByOptions: async (_: any, args: any) => {
     const { productID, options } = args;
@@ -116,41 +122,36 @@ const Query = {
       images: product?.skus[0].images,
     };
   },
-
-  productOptions: async (_: any, args: any) => {
-    const { productID } = args;
-
-    const product = await prisma.product.findUnique({
-      where: {
-        id: productID,
-      },
+  displayProducts: async () => {
+    const products = await prisma.product.findMany({
       include: {
-        varients: {
-          include: {
-            skuOptions: {
-              select: {
-                value: true,
-              },
-            },
-          },
-        },
+        varients: true,
       },
     });
 
-    // Only return a list of the varients with their name, id and options
+    const detailedProducts = products.map(async (product) => {
+      if (!product.defaultSkuId) return product;
 
-    // console.table(product?.varients[0].skuOptions);
+      const skuDetails = await prisma.sKU.findUnique({
+        where: {
+          id: product.defaultSkuId,
+        },
+        select: {
+          price: true,
+          stock: true,
+          images: true,
+        },
+      });
 
-    const details = product?.varients.map((varient) => {
+      if (!skuDetails) return product;
+
       return {
-        varient_id: varient.id,
-        varient_name: varient.name,
-        options: varient.skuOptions.map((skuOption) => skuOption.value),
+        ...product,
+        ...skuDetails,
       };
     });
 
-    console.table(details);
-    return details;
+    return Promise.all(detailedProducts);
   },
 };
 
