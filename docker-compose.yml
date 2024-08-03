@@ -5,20 +5,16 @@ services:
     user: postgres
     environment:
       - POSTGRES_PASSWORD=postgres
-    volumes:
-      - postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   api_products:
-    depends_on:
-      - postgres_products
     build: .
-    env_file: ./.env
+    depends_on:
+      - products_db
     ports:
       - "4001:4001"
 
     stdin_open: true
     tty: true
-volumes:
-  postgres:
+    env_file: .env

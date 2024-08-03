@@ -13,14 +13,20 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "build": "yarn tsc",
-    "dev": "yarn nodemon --watch 'src/**' --ext ts --exec 'yarn ts-node src/index.ts'"
+    "dev": "yarn nodemon --watch 'src/**' --ext ts --exec 'yarn ts-node src/index.ts'",
+    "gen-proto": "./scripts/gen-proto.ts"
   },
   "devDependencies": {
     "@apollo/server": "^4.10.4",
     "@apollo/subgraph": "^2.8.2",
+    "@grpc/grpc-js": "^1.11.1",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "graphql-tag": "^2.12.6",
     "nodemon": "^3.1.4",
     "prisma": "^5.16.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "ts-proto": "^1.181.1"
   }
 }

@@ -1,11 +1,11 @@
-FROM node:18.16.0-alpine as dependencies
+FROM node:18.16.0-alpine AS dependencies
 
 WORKDIR /app
 
 COPY package.json yarn.lock ./
 RUN yarn
 
-FROM dependencies as builder
+FROM dependencies AS builder
 
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -14,7 +14,7 @@ COPY . .
 RUN npx prisma generate
 RUN yarn build
 
-FROM dependencies as deploy
+FROM dependencies AS deploy
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
